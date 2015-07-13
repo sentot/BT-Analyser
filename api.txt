@@ -1,0 +1,443 @@
+
+
+(process-bt-file filename)
+
+Example call:
+
+  (process-bt-file "file.btc")
+
+Example results:
+
+  <result>SUCCESS</result>
+
+  <result><error>error message text</error></result>
+
+  <result><warning>warning message text</warning></result>
+
+Errors can be from a non-existent file or a fatal syntax error in the file.
+Warnings are typically from non-fatal syntax errors.
+
+==========
+
+(process-bt bt-string)
+
+Example call:
+
+  (process-bt "#RT R1 1 R2 2 R3 3 R4 4 R5 5 R6 6 R7 7 R8 8 R9 9
+   R10 10 R11 11 R12 12 R13 13 R14 14 R15 15 R16 16 R17 17 R18 18
+   R19 19 R20 20 R21 21 R22 22 R23 23 R24 24 R24a 24a R25 25
+   R25a 25a R26 26 R27a 27a R27 27 R28 28 R29 29 R30 30 R31 31
+
+   #C C1 Vector
+   #S 1 Null // doesn't exist
+   #S 2 Init // is initiated
+   #S 3 SSP // start selected (point)
+   #S 4 dynamic // start selected (track)
+   #S 5 fixed // 
+   #L 6 dynamic
+
+   #C C2 User
+   #E 1 HitBRLKey
+   #E 2 leftClick
+   #E 3 hitEsc
+   #E 4 movePtrOverP
+   #E 5 movePtrOverT
+   #E 6 movePtrOverVS
+
+   #C C3 Dummy
+   #S 1 PtrMvmt
+
+   #C C4 Display
+   #EO 1 error
+
+   #C C5 Pointer
+   #S 1 OverP // over a point
+   #S 2 OverT // over a track or track menu
+   #S 3 OverVS // over the vector, closer to its start 
+   #S 4 OverVE // over the vector, closer to its end
+   #L 5 OverP 
+   #L 6 OverT
+   #L 7 OverVS
+   #L 8 not(OverVS)
+   #G 9 OverP
+   #G 10 OverT
+   #G 11 OverVS
+   #G 12 not(OverVS)
+	
+   #C C7 Label
+   #S 1 Null
+   #S 2 PP
+   #S 3 TP
+   #S 4 TT
+
+   #T R1 C1 1;; R2 C7 1 #P{
+         R3 C2 1 #N{
+            R4 C5 5; R5 C1 1 ^
+            R6 C5 6; R8 C1 4 #P{
+               R9 C5 9; R10 C7 3; R11 C5 10; R12 C7 4; R13 C5 9 ^ 
+               R14 C2 2 #N{
+                   R15 C5 7;; R16 C4 1; R17 C1 4 ^
+                   R18 C5 8;; R19 C5 9 --;; R20 C1 5; R21 C2 3; R22 C1 1 ^
+                   }
+               }
+            }
+	R23 C3 1 #N{
+		R24 C2 4; R24a C5 1; R23 C3 1 ^
+		R25 C2 5; R25a C5 2; R23 C3 1 ^
+		R26 C1 6;; R27 C2 6; R27a C5 3; R23 C3 1 ^
+                }
+        }")
+
+Example results:
+
+  <result>SUCCESS</result>
+
+  <result><error>error message text</error></result>
+
+  <result><warning>warning message text</warning></result>
+
+==========
+
+(reachable-states)
+
+Example results:
+
+  <result>SUCCESS</result>
+
+  <result>FAILED</result>
+
+==========
+
+(find-test-paths source intermediates target blocks)
+
+Example call:
+
+  (find-test-paths 3 (5 7 8) 16 (1 3 16 24))
+
+  (find-test-paths 3 nil 16 (1 3 16 24))
+
+Example results:
+
+  <result>
+  <path><block-index>3</block-index><block-index>5</block-index>
+        <block-index>16</block-index></path>
+  <path><block-index>3</block-index><block-index>7</block-index>
+        <block-index>8</block-index><block-index>16</block-index></path>
+  </result>
+
+  <result></result>
+
+==========
+
+(check-test-path path)
+
+Example call:
+
+  (check-test-path (1 2 4 6))
+
+Example results:
+
+  <result>FEASIBLE</result>
+
+  <result>INFEASIBLE</result>
+
+==========
+
+(indices-of-update-blocks component-string &optional behaviour-string)
+
+Example calls:
+
+  (indices-of-update-blocks "Vector" "dynamic")
+
+  (indices-of-update-blocks "Vector")
+
+Example result:
+
+  <result><block-index>0</block-index><block-index>5</block-index></result>
+
+==========
+
+(test-path-precondition path)
+
+Example call:
+
+  (test-path-precondition (1 2 4 6))
+
+Example results:
+
+  <result>
+    <formula>
+      <and>
+        <equality><variable>PC1</variable><constant>1</constant></equality>
+        <equality><variable>PC4</variable><constant>0</constant></equality>
+        <equality><variable>PC5</variable><constant>0</constant></equality>
+        <equality><variable>|SV-Pointer|</variable>
+                  <constant>|VAL-OverP|</constant></equality>
+      </and>
+    </formula>
+  </result>"
+
+  <result><formula><constant>FALSE</constant></formula></result>
+
+==========
+
+(test-path-postcondition path)
+
+Example call:
+
+  (test-path-postcondition (0 9 1 12))
+
+Example results:
+
+  <result>
+    <formula>
+      <and>
+        <equality><variable>PC1</variable><constant>2</constant></equality>
+        <equality><variable>PC2</variable><constant>1</constant></equality>
+        <equality><variable>PC4</variable><constant>0</constant></equality>
+        <equality><variable>PC5</variable><constant>0</constant></equality>
+        <equality><variable>PC3</variable><constant>1</constant></equality>
+        <equality><variable>|SV-Vector|</variable>
+                  <constant>|VAL-Null|</constant></equality>
+        <equality><variable>|SV-Label|</variable>
+                  <constant>|VAL-Null|</constant></equality>
+        <equality><variable>|SV-Pointer|</variable>
+                  <constant>|VAL-OverP|</constant></equality>
+        <equality><variable>|SV-Dummy|</variable>
+                  <constant>|VAL-PtrMvmt|</constant></equality>
+      </and>
+    </formula>
+  </result>
+
+  <result><formula><constant>FALSE</constant></formula></result>
+
+==========
+
+(test-path-preamble start path)
+
+Example call:
+
+  (test-path-preamble 0 (3 19 23 24 25 1 4 5)))
+
+Example result:
+
+  <result>
+    <path>
+      <block-index>0</block-index>
+      <block-index>19</block-index>
+      <block-index>1</block-index>
+      <block-index>2</block-index>
+    </path>
+  </result>
+
+==========
+
+(test-path-postamble start path)
+
+Example call:
+
+  (test-path-preamble 30 (14 15 16)))
+
+Example result:
+
+  <result>
+    <path>
+      <block-index>19</block-index>
+      <block-index>1</block-index>
+      <block-index>2</block-index>
+    </path>
+  </result>
+
+==========
+
+(test-path-state prefix-path suffix-path)
+
+Example call:
+
+  (test-path-state (3 19 23) (24 25 1 4 5))
+
+Example result:
+
+  <result>
+    <formula>
+      <and>
+        <equality><variable>PC1</variable><constant>2</constant></equality>
+        <equality><variable>PC2</variable><constant>1</constant></equality>
+        <equality><variable>PC4</variable><constant>0</constant></equality>
+        <equality><variable>PC5</variable><constant>0</constant></equality>
+        <equality><variable>PC3</variable><constant>5</constant></equality>
+        <equality><variable>|SV-Vector|</variable>
+                  <constant>|VAL-Null|</constant></equality>
+        <equality><variable>|SV-Label|</variable>
+                  <constant>|VAL-Null|</constant></equality>
+        <equality><variable>|SV-Pointer|</variable>
+                  <constant>|VAL-OverP|</constant></equality>
+        <equality><variable>|SV-Dummy|</variable>
+                  <constant>|VAL-PtrMvmt|</constant></equality>
+      </and>
+    </formula>
+  </result>
+
+==========
+
+(print-block block-index)
+
+Example call:
+
+  (print-block 26)
+
+Example result:
+
+  <result>
+  <block>
+    <block-index>26</block-index><block-type>normal</block-type>
+    <node>
+      <tag>26</tag>
+      <component>Vector</component>
+      <behaviour-type>SELECTION</behaviour-type>
+      <behaviour>dynamic</behaviour><flag></flag>
+    </node>
+    <node>
+      <tag>27</tag>
+      <component>User</component>
+      <behaviour-type>EVENT</behaviour-type>
+      <behaviour>movePtrOverVS</behaviour><flag></flag>
+    </node>
+    <branch-type>NONE</branch-type>
+    <children><block-index>27</block-index></children>
+    <parent><block-index>19</block-index></parent>
+  </block>
+  </result>
+
+
+==========
+
+(print-bt)
+
+Example result:
+
+  <result>
+  <block>
+  <block-index>0</block-index><block-type>normal</block-type>
+  <node>
+    <tag>1</tag>
+    <component>Vector</component>
+    <behaviour-type>STATE-REALISATION</behaviour-type>
+    <behaviour>Null</behaviour><flag></flag>
+  </node>
+  <node>
+    <tag>2</tag>
+    <component>Label</component>
+    <behaviour-type>STATE-REALISATION</behaviour-type>
+    <behaviour>Null</behaviour><flag></flag>
+  </node>
+  <branch-type>PARALLEL</branch-type>
+  <children><block-index>1</block-index>
+            <block-index>19</block-index></children>
+  <parent></parent>
+  </block>
+  ...
+  more blocks here
+  ...
+  <block>
+  <block-index>29</block-index><block-type>ELSE</block-type>
+  <node>
+    <tag>24</tag>
+    <component>User</component>
+    <behaviour-type>EVENT</behaviour-type>
+    <behaviour>movePtrOverP</behaviour><flag></flag>
+  </node>
+  <branch-type>NONE</branch-type>
+  <children></children>
+  <parent><block-index>19</block-index></parent>
+  </block>
+  </result>
+
+
+==========
+
+Notes on elements in formulas.
+
+-----
+
+A "constant" element is for a non-negative integer, a truth value, or
+for a "val" value.
+
+Examples:
+
+  <constant>1</constant>
+
+  <constant>TRUE</constant>
+
+  <constant>FALSE</constant>
+
+  <constant>|VAL-OverP|</constant>
+
+You may need to do some manipulation to get the value's unadorned name.
+
+-----
+
+A "variable" element is either for a PC, a component, or an attribute.
+
+Examples:
+
+  <variable>PC1</variable>
+
+  <variable>|SV-Pointer|</variable>
+
+For a component or attribute, you may need to do some manipulation
+to get the unadorned name.
+
+-----
+
+An "equality" element has exactly two children: a variable element
+as its first child and a constant element as its second child.
+
+-----
+
+An "and" element (for logical conjunction) can have any number
+of children (including zero).
+
+Example:
+
+  <and>
+    <equality><variable>PC1</variable><constant>1</constant></equality>
+    <equality><variable>PC4</variable><constant>0</constant></equality>
+    <equality><variable>PC5</variable><constant>0</constant></equality>
+    <equality><variable>|SV-Pointer|</variable>
+              <constant>|VAL-OverP|</constant></equality>
+  </and>
+
+-----
+
+An "or" element (for logical disjunction) can have any number of
+children (including zero).
+
+Example:
+
+  <or>
+    <equality><variable>PC1</variable><constant>1</constant></equality>
+    <equality><variable>PC1</variable><constant>3</constant></equality>
+  </or>
+
+-----
+
+An "implies" element (for logical implication) has exactly two children.
+
+Example:
+
+  <implies>
+    <equality><variable>PC1</variable><constant>1</constant></equality>
+    <equality><variable>PC4</variable><constant>0</constant></equality>
+  </implies>
+
+-----
+
+A "not" element (for logical negation) must have exactly one child.
+
+Example:
+
+  <not>
+    <equality><variable>PC1</variable><constant>1</constant></equality>
+  </not>
+

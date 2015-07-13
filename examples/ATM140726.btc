@@ -1,0 +1,61 @@
+#RT R1 1 R2 2 R3 3 R4 4 R5 5 R6 6 R7 7 R8 8 R9 9 R10 10 R11 11 R12 12 R13 13 R14 14 R15 15 R16 16 R17 17 R18 18 R19 19 R20 20 R21 21 R22 22 R23 23 R24 24 R25 25 R26 26 R27 27 R28 28 R29 29 R30 30 R31 31
+
+#C C1 ATM
+#S 1 Ready 
+#S 2 PerformTransaction
+
+#C C2 Reader
+#EI 1 acceptCard
+#EI 2 ejectCard
+
+#C C3 Display
+#S 1 ShowTransTypes
+#S 2 ShowAccTypes
+#S 3 ShowWdAmounts
+#S 4 AnotherTransaction?
+#S 5 errorInsufficientFunds
+#S 6 noSuchAccount
+#S 7 etc
+
+#C C4 Customer
+#E 1 cancel
+#E 2 withdraw
+#E 3 transfer
+#E 4 yes
+#E 5 no
+
+#C C5 Console
+#EI 1 getAccount 
+#EI 2 getAmount
+#S 3 IgnoreCancel
+#L 4 IgnoreCancel
+#L 5 else
+
+#C C6 Coms
+#EO 1 withdrawal
+#EI 2 okWithdrawal
+#EI 3 insufficientFunds
+#EI 4 noSuchAccount
+
+#C C7 Printer
+#EO 1 wdReceipt
+
+#T R1 C1 1; R2 C2 1; R3 C1 2; R4 C3 1 #N{
+	R5 C4 2; R6 C3 2 #N{
+		R7 C5 1; R8 C3 3 #N{
+			R9 C5 2; R10 C6 1 #N{
+				R11 C6 2; R12 C7 1; R13 C3 4 #N{
+					R14 C4 4; R15 C1 2 ^
+					R16 C4 5; R17 C2 2; R18 C1 1 ^
+					}
+				R19 C6 3; R20 C3 5; R21 C3 3 ^
+				R22 C6 4; R23 C3 6; R24 C3 2 ^ 
+				}
+			R29 C4 1 =>
+			}
+		R27 C4 1; R28 C3 4 =>
+		}
+	R25 C4 3; R26 C3 7
+	}
+
+

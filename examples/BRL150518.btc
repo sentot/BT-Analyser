@@ -1,0 +1,64 @@
+#RT R0 0 R1 1 R2 2 R3 3 R4 4 R5 5 R6 6 R7 7 R8 8 R9 9 R10 10 R11 11 R12 12 R13 13 R14 14 R15 15 R16 16 R17 17 R18 18 R19 19 R20 20 R21 21 R22 22 R23 23 R24 24 R24a 24a R25 25 R25a 25a R26 26 R27a 27a R27 27 R28 28 R29 29 R30 30 R31 31
+
+#C C1 Vector
+#S 1 Null 
+#S 2 Init 
+#S 3 SSP 
+#S 4 dynamic 
+#S 5 fixed
+#L 6 dynamic
+
+#C C2 User
+#E 1 HitBRLKey
+#E 2 leftClick
+#E 3 hitEsc
+#E 4 movePtrOverP
+#E 5 movePtrOverT
+#E 6 movePtrOverVS
+
+#C C3 Dummy
+#S 1 PtrMvmt
+
+#C C4 Display
+#EO 1 error
+
+#C C5 Pointer
+#S 1 OverP 
+#S 2 OverT 
+#S 3 OverVS 
+#S 4 OverVE 
+#L 5 OverP 
+#L 6 OverT
+#L 7 OverVS
+//#L 8 else
+#G 9 OverP
+#G 10 OverT
+#L 11 not(OverVS) 
+#S 12 null
+	
+#C C7 Label
+#S 1 Null
+#S 2 PP
+#S 3 TP
+#S 4 TT
+
+#T R0 C1 1;; R1 C5 12;; R2 C7 1 #P{
+	R3 C2 1 #N{
+		R6 C5 6; R8 C1 4 #P{
+			R9 C5 9; R10 C7 3; R11 C5 10; R12 C7 4; R13 C5 9 ^ 
+			R14 C2 2 #N{
+				R15 C5 7; R16 C4 1; R17 C1 4 ^
+				R18 C5 11; R19 C5 9 --;; R20 C1 5; R21 C2 3; R22 C1 1 ^
+				}
+			}
+		R4 C5 5; R5 C1 1 ^
+		}
+	R23 C3 1 #N{
+		R24 C2 4; R25 C5 1; R23 C3 1 ^
+		R26 C2 5; R27 C5 2; R23 C3 1 ^
+		R28 C1 6;; R29 C2 6; R30 C5 3; R23 C3 1 ^
+		}
+	}
+
+
+

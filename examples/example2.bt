@@ -1,0 +1,17 @@
+#RT R1 1 R2 2 R3 3 R4 4 R5 5 R6 6 R7 7 R8 8 R9 9 R10 10 R11 11 R12 12
+
+#C C1 Light
+ #S 1 amber
+ #S 2 green
+ #S 3 red
+
+#C C2 Lock
+ #G 1 unset
+ #S 2 set
+ #S 3 unset
+
+ 
+#T R1 C2 3 ; R2 C1 1 #P{
+ R3 C2 1 ;; R4 C2 2 ; R5 C1 2 ; R6 C2 3 ; R7 C1 1 ^
+ R8 C2 1 ;; R9 C2 2 ; R10 C1 3 ; R11 C2 3 ; R12 C1 1 ^
+ }

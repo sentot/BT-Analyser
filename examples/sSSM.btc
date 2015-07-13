@@ -1,0 +1,137 @@
+#RT R1 1 R2 2 R3 3 R4 4 R4E 4E R5 5 R6 6 R7 7 R8 8 R9 9 R9a 9a R9b 9b R10 10 R11 11 R11a 11a R11b 11b R12 12 R13 13 R13E 13E R14 14 R15 15 R16 16 R16a 16a R16b 16b R17 17 R18 18 R19 19 R20 20 R21 21 R22 22 R23 23 R24 24 R25 25 R26 26 R27 27 R28 28 R29 29 R30 30 R31 31 R32 32 R33 33 
+R34	34
+R35	35
+R36	36
+R37	37
+R38	38
+R39	39
+R40	40
+R41 41
+R41a 41a 
+R41b 41b
+R42	42
+R43	43
+R44	44
+R45	45
+R46	46
+R47	47
+R48	48
+R49	49
+R50	50
+
+
+#C C1 SSM
+#S 1 Stopped
+#S 2 Unknown
+#S 3 Ok
+#S 4 FailedST
+#S 5 FailedSensors
+#L 6 FailedST
+#L 7 NOT(FailedST)
+#L 8 FailedSensors
+#L 9 NOT(FailedSensors)
+#L 10 else
+#L 11 Ok
+
+#C C2 TimerST
+#S 1 running
+//#S 2 timedout
+#S 3 stopped
+#G 4 running
+#G 5 stopped
+#L 6 stopped
+#EI 7 timeout
+
+#C C3 Operator
+#E 1 attach
+#E 2 detach
+#E 3 start
+
+#C C4 Filter
+#EI 1 valid(s) // was S
+#EI 3 validST // was S
+#EI 4 invalid(s) // was S
+#EI 6 invalidST // was S
+//#EI 7 pause // no longer needed
+#A 10 ||s:{s1,s2}
+#A 11 []s:{s1,s2}
+#A 12 ||&s:{s1,s2}
+
+#C C15 Timer //generic, with parameter s
+#S 1 s:=running
+//#S 2 s:=timedout
+#S 3 s:=stopped
+#G 4 s=running
+#G 5 s=stopped
+#L 6 s=running
+#L 7 NOT(s=running)
+#EI 8 timeout(s) // was II
+#EI 9 pause // needed to break FailSM loop
+#A 10 ||s:{s1,s2}
+#A 11 []s:{s1,s2}
+#A 12 ||&s:{s1,s2}
+#L 13 else
+
+// from here on not needed in simple model
+#C C7 Environ 
+#S 1 SSM-off 
+#S 2 SSM-on
+#S 3 receivingSensors
+#S 4 notReceivingSensors
+#S 5 init
+#S 6 ready
+#IO 9 timeout(s)
+#S 10 ||s:{s1,s2}
+#S 11 []s:{s1,s2}
+#S 12 ||&s:{s1,s2}
+
+#C C8 Stn
+#S 1 valid
+
+#C C9 s
+#S 1 valid
+#S 2 invalid
+
+#C C10 Tester
+#E 1 restart
+#E 2 stopSSM
+#E 3 startPTG
+#E 4 stopRecSensors
+#E 5 startRecSensors
+#E 6 setInvalidS1
+#E 7 setValidS1
+#E 8 setInvalidS2
+#E 9 setValidS2
+#S 10 startMSTS
+
+#C C12 Dummy
+#S 1 dummy1
+#S 2 dummy2
+
+#T R1 C1 1;; R1 C2 3;; R1 C15 12;; R1 C15 3; R2 C3 1; R3 C1 2;; R4 C15 12;; R5 C15 1 #P{
+	R6 C3 2; R7 C1 1 ^
+	R8 C3 3; R9 C1 2 ^
+//	R4E C10 3 =; R4E C1 2 ^
+//	R13E C10 1 =; R13E C1 2 ^
+	R10 C2 1 #P{
+//		R35 C12 1; R35 C4 6 =; R35 C12 1 ^ // removed for now
+		R11 C4 10; R12 C4 1 =; R13 C1 3;; R14 C15 1; R10 C2 1 ^
+		R16 C4 10; R16 C4 4 =; R16 C4 10 ^
+		R20 C4 3 = #N{
+			R21 C1 8; R22 C1 5; R10 C2 1 ^
+			R24 C1 10; R25 C1 3; R10 C2 1 ^
+			}
+		R30 C2 4; R31 C2 7 =;; R32 C2 3 #N{
+			R33 C1 8; R33 C1 5; R10 C2 4 ^
+			R34 C1 10; R34 C1 4; R10 C2 4 ^
+			}
+	R40 C15 10; R41 C15 4; R42 C15 8;; R43 C15 3 #N{
+		R44 C1 7;; R44 C15 12;; R44 C15 7; R45 C1 5; R40 C15 10 ^
+		R46 C1 10 #N{
+			R47 C1 6; R47 C1 4; R40 C15 10 ^
+			R48 C1 11; R48 C1 3; R40 C15 10 ^
+			R49 C1 10; R49 C1 2; R40 C15 10 ^
+			}
+		}
+	}
+}

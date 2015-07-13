@@ -1,0 +1,191 @@
+#RT R1 1 R2 2 R3 3 R4 4 R5 5 R6 6 R7 7 R8 8 R9 9
+   R10 10 R11 11 R12 12 R13 13 R14 14 R15 15 R16 16 R17 17 R18 18 R19 19
+   R20 20 R21 21 R22 22 R23 23 R24 24 R25 25 R26 26 R27 27 R28 28 R29 29
+   R30 30 R31 31 R32 32 R33 33 R34 34 R35 35 R36 36 R37 37 R38 38 R39 39
+   R40 40 R41 41 R42 42 R43 43 R44 44 R45 45 R46 46 R47 47 R48 48 R49 49
+   R50 50 R51 51 R52 52 R53 53 R54 54 R55 55 R56 56 R57 57 R58 58 R59 59
+   R60 60 R61 61 R62 62 R63 63 R64 64 R65 65 R66 66 R67 67
+
+#C C1 Aircraft
+  #S 1 onGround
+  #S 2 flyingSlow
+  #S 3 flyingFast
+  #E 4 thresholdSpeed
+  #G 5 onGround
+  #G 6 flyingFast
+
+#C C2 Pilot
+  #S 1 ready
+
+#C C3 Engine1
+  #S 1 off
+  #S 2 active
+  #G 3 active
+  #G 4 off
+
+#C C4 Engine2
+  #S 1 off
+  #S 2 active
+  #G 3 active
+  #G 4 off
+
+#C C5 Yellow
+  #S 1 off
+  #S 2 active
+
+#C C6 Green
+  #S 1 off
+  #S 2 active
+
+#C C7 Blue
+  #S 1 off
+  #S 2 active
+
+#C C8 PTUy
+  #S 1 off
+  #S 2 active
+  #G 3 active
+  #G 4 off
+
+#C C9 PTU
+  #S 1 off
+  #S 2 active
+  #G 3 active
+  #G 4 off
+
+#C C10 EDPy
+  #S 1 off
+  #S 2 active
+  #G 3 active
+  #G 4 off
+
+#C C11 EDPg
+  #S 1 off
+  #S 2 active
+  #G 3 active
+  #G 4 off
+
+#C C12 EMPy
+  #S 1 off
+  #S 2 active
+  #G 3 active
+  #G 4 off
+
+#C C13 EMPb
+  #S 1 off
+  #S 2 active
+  #G 3 active
+  #G 4 off
+
+#C C14 RAT
+  #S 1 off
+  #S 2 active
+  #G 3 active
+  #G 4 off
+
+#C C15 System
+  #S 1 distyFailed:=false
+  #S 2 distyFailed:=true
+  #S 3 distgFailed:=false
+  #S 4 distgFailed:=true
+  #S 5 distbFailed:=false
+  #S 6 distbFailed:=true
+  #S 7 E1Failed:=false
+  #S 8 E1Failed:=true
+  #S 9 E2Failed:=false
+  #S 10 E2Failed:=true
+  #S 11 PTUFailed:=false
+  #S 12 PTUFailed:=true
+  #S 13 EDPyFailed:=false
+  #S 14 EDPyFailed:=true
+  #S 15 EDPgFailed:=false
+  #S 16 EDPgFailed:=true
+  #S 17 EMPbFailed:=false
+  #S 18 EMPbFailed:=true
+  #S 19 EMPyFailed:=false
+  #S 20 EMPyFailed:=true
+  #S 21 RATFailed:=false
+  #S 22 RATFailed:=true
+  #S 23 operating
+  #E 24 mainLoop
+  #E 25 E1Failed
+  #E 26 E2Failed
+  #E 27 distyFailed
+  #E 28 PTUFailed
+  #E 29 EDPyFailed
+  #E 30 EDPgFailed
+  #E 31 EMPyFailed
+  #E 32 EMPbFailed
+  #E 33 RATFailed
+  #E 34 distbFailed
+  #E 35 distgFailed
+  #G 36 E1Failed=true
+  #G 37 E2Failed=true
+
+
+#T R1 C2 1 ;; R1 C3 2 ;; R1 C4 2 ;; R1 C5 1 ;; R1 C8 1 ;; R1 C9 1 ;;
+   R1 C10 1 ;; R1 C11 1 ;; R1 C12 2 ;; R1 C13 1 ;; R1 C14 1 ;; R1 C15 1 ;;
+   R1 C15 3 ;; R1 C15 5 ;; R1 C15 7 ;; R1 C15 9 ;; R1 C15 11 ;; R1 C15 13 ;;
+   R1 C15 15 ;; R1 C15 17 ;; R1 C15 19 ;; R1 C15 21 ;; R1 C6 1 ;; R1 C7 1 ;;
+   R1 C1 1 ; R2 C15 23 #P{
+     R3 C15 24 ; R4 C15 23 ; R5 C15 24 ^
+     R6 C1 2 ; R7 C1 4 ; R8 C1 3
+     R9 C15 25  ;; R10 C15 8 ;; R11 C3 1
+     R12 C15 26  ;; R13 C15 10 ;; R14 C4 1
+     R15 C5 1 #P{
+       R16 C15 23 L1 #N{
+         R17 C8 3 ;; R17 C5 2 ;
+           R18 C8 4 ;; R18 C9 4 ;; R18 C5 1 ^
+         R19 C9 3 ;; R19 C5 2 ;
+           R20 C9 4 ;; R20 C8 4 ;; R20 C5 1 ^
+         }
+       R21 C15 27 ;; R21 C15 2 ;; R21 C5 1 ;; R21 C15 23 L1 --
+       }
+     R22 C8 1 #N{
+       R23 C10 3 ;; R23 C8 2 ; R24 C10 4 ;; R24 C12 4 ;; R24 C8 1 ^
+       R25 C12 3 ;; R25 C8 2 ; R26 C12 4 ;; R26 C10 4 ;; R26 C8 1 ^
+       }
+     R27 C9 1 #P{
+       R28 C15 23 L2 #N{
+         R29 C11 3 ;; R29 C9 2 ; R30 C11 4 ;; R30 C8 4 ;; R30 C9 1 ^
+         R31 C8 3 ;; R31 C9 2 ; R32 C8 4 ;; R32 C11 4 ;; R32 C9 1 ^
+         }
+       R33 C15 28 ;; R33 C15 12 ;; R33 C9 1 ;; R33 C15 23 L2 --
+       }
+     R34 C10 1 #P{
+       R35 C4 3 ;; R35 C10 2 ; R36 C4 4 ;; R36 C10 1 ^
+       R37 C15 29 ;; R37 C15 14 ;; R37 C10 1 ;; R37 C4 3 --
+       }
+     R38 C11 1 #P{
+       R39 C3 3 ;; R39 C11 2 ; R40 C3 4 ;; R40 C11 1 ^
+       R41 C15 30 ;; R41 C15 16 ;; R41 C11 1 ;; R41 C3 3 --
+       }
+     R42 C15 31 ;; R42 C12 1 ;; R42 C15 20
+     R43 C13 1 #P{
+       R44 C15 23 L3 #N{
+         R45 C3 3 ;; R45 C13 2 ; R46 C3 4 ;; R46 C4 4 ;; R46 C1 5 ;; R46 C13 1 ^
+         R47 C4 3 ;; R47 C13 2 ; R48 C4 4 ;; R48 C3 4 ;; R48 C1 5 ;; R48 C13 1 ^
+         }
+       R49 C15 32 ;; R49 C15 18 ;; R49 C13 1 ;; R49 C15 23 L3 --
+       }
+     R50 C14 1 #P{
+       R51 C15 36 ;; R51 C15 37 ;; R52 C1 6 ;; R52 C14 2
+       R53 C15 33 ;; R53 C15 22 ;; R53 C14 1 ;; R53 C15 36 --
+       }
+     R54 C7 1 #P{
+       R55 C15 23 L4 #P{
+         R56 C13 3 ;; R56 C7 2 ; R57 C13 4 ;; R57 C7 1 ^
+         R58 C14 3 ;; R58 C13 3 -- ;; R59 C7 2
+         }
+       R60 C15 34 ;; R60 C15 6 ;; R60 C7 1 ;; R60 C15 23 L4 --
+       }
+     R61 C6 1 #P{
+       R62 C15 23 L5 #N{
+         R63 C11 3 ;; R63 C6 2 ;
+           R64 C11 4 ;; R64 C9 4 ;; R64 C6 1 ^
+         R65 C9 3 ;; R65 C6 2 ;
+           R66 C9 4 ;; R66 C11 4 ;; R66 C6 1 ^
+         }
+       R67 C15 35 ;; R67 C15 4 ;; R67 C6 1 ;; R67 C15 23 L5 --
+       }
+     }
