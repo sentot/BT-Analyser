@@ -45,7 +45,7 @@ IMPORTANT NOTE
 Without changes, the working directory when running Lisp to load
 and compile BT Analyser is assumed to be the main directory of
 BT Analyser (where the source files reside}. This can usually be
-ensured by running Lisp from the source directory of the prototype.
+ensured by running Lisp from the source directory of BT Analyser.
 Otherwise you may need to set it via the Lisp variable
 *default-pathname-defaults*, for example
 
@@ -91,7 +91,7 @@ After the compilation is finished, exit Lisp, e.g., using
 in SBCL. The exit command may be different in different Lisp
 platforms, e.g., (quit) or the CONTROL-D key.
 
-Once lexicon.lisp has been compiled, the rest of the prototype
+Once lexicon.lisp has been compiled, the rest of BT Analyser
 can be compiled. Again run the ANSI Lisp. This time enter the
 following at the prompt:
 
@@ -105,8 +105,8 @@ Exit Lisp after the compilation finishes.
 
 ----- Loading -----
 
-After the prototype has been compiled (compilation need only be
-performed once), the prototype can be run. At the ANSI Common Lisp
+After BT Analyser has been compiled (compilation need only be
+performed once), BT Analyser can be run. At the ANSI Common Lisp
 prompt, enter the following:
 
   (load "load-all.lisp")
@@ -123,7 +123,7 @@ will run SBCL with a virtual memory size of 16GB.
 
 ----- BT Source File -----
 
-The prototype accepts BT source files for TextBE and ComBE
+BT Analyser accepts BT source files for TextBE and ComBE
 (i.e., source files with the TextBT syntax).
 Currently, no operators are allowed in expressions.
 
@@ -169,7 +169,7 @@ it prints the 5th event which corresponds to the counterexample path.
 ==================== LTL Syntax ====================
 
 
-The prototype uses S-expressions for LTL formulas.
+BT Analyser uses S-expressions for LTL formulas.
 The following table shows the syntax for all the operations.
 
 
@@ -190,7 +190,7 @@ A note for those not familiar with Lisp: an "unevaluated" S-expression
 is quoted using a single quote (') in front, e.g., '(not p).
 General Lisp expressions involving literals, variables, function
 applications, quotes, backquotes and commas can be used to build an
-S-expression. However, the prototype runs in the "bt" package in which
+S-expression. However, BT Analyser runs in the "bt" package in which
 not all symbols from the standard package in ANSI Common Lisp are
 imported.
 
@@ -223,9 +223,9 @@ attribute name, or RIGHT must be an integer if LEFT is a PC name.
 ==================== Commands ====================
 
 
-The prototype allows analysis to be performed in an incremental
+BT Analyser allows analysis to be performed in an incremental
 fashion. Of course analysis can be performed only if there is a
-model. For the prototype, a model is specified by a TextBT file
+model. For BT Analyser, a model is specified by a TextBT file
 (a file containing text that specifies a Behavior Tree in
 TextBT syntax, as used by the TextBE and ComBE tools). A model
 is loaded using the process-bt-file command. Its syntax is
@@ -244,7 +244,7 @@ the history of the session. There can be at most one model event
 in the history. Any model previously loaded, along with its
 analysis, will be removed.
 
-Relative pathnames can be convenient when using the prototype.
+Relative pathnames can be convenient when using BT Analyser.
 The set-working-directory can be used to change the working
 directory. Its syntax is
 
@@ -257,7 +257,7 @@ An example use:
 
 -----
 
-There are several types of analysis supported by the prototype.
+There are several types of analysis supported by BT Analyser.
 Some of them require the presence of an LTL specification.
 The primitive command for entering an LTL specification is
 ltl-specification (a primitive command generates at most one
@@ -283,7 +283,7 @@ Thus the command may produce two events.
 
 -----
 
-An analysis in the prototype that does not require an LTL 
+An analysis in BT Analyser that does not require an LTL 
 specification is computing general reachability (reachability
 from an initial state). The BT translator initialises only the
 PCs (the PC of the main thread is set to 1 while other PCs are
@@ -442,7 +442,7 @@ using the combo ltl-check command. The syntax of the command is
 ==================== Options ====================
 
 
-Various options can be set for the prototype. The parameters
+Various options can be set for BT Analyser. The parameters
 for the options can be changed in the middle of a session
 (the changes may cause some results to be removed).
 
@@ -642,12 +642,12 @@ the print-test-path-summary:
   (print-test-path-summary path)
 
 
-==================== SSL Socket Server ====================
+==================== Socket Server ====================
 
 
-BT Analyser can be run as a server using SSL sockets with
+BT Analyser can be run as a server using sockets with
 with SBCL, GCL and CCL. For other ANSI Lisp platforms, the
-code for SSL sockets need to be added to "lexicon.lisp".
+code for sockets need to be added to "lexicon.lisp".
 
 The function to run BT Analyser as a socket server is
 
