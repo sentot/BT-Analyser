@@ -1006,7 +1006,22 @@
   `(cl:subseq (cl:string ,string) ,start (cl:or ,to (string-length ,string))))
 
 (cl:defun string-from-sequence (seq)
-  (cl:coerce seq 'cl:string))
+	  (cl:coerce seq 'cl:string))
+
+;;; Replace occurrences of old with new in string.
+
+(cl:defun string-replace (string old new)
+  (cl:let ((len (cl:length old)))
+    (cl:with-output-to-string (out)
+      (cl:loop for old-position = 0 then (cl:+ position len)
+               for position = (cl:search old string
+					    :start2 old-position
+					    :test #'cl:char=)
+	       do (cl:write-string string out :start old-position
+				      :end (cl:or position (cl:length string)))
+	       when position cl:do (cl:write-string new out)
+	       while position))))
+
 
 ;;; --------------------------------------
 

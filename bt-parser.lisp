@@ -809,8 +809,7 @@
   (format t (bt-behaviour-open bt-node))
   (format t "~A" (bt-node-behaviour bt-node))
   (format t (bt-behaviour-close bt-node))
-  (format t (print-bt-node-flag bt-node))
-  (format t "~%"))
+  (format t (print-bt-node-flag bt-node)))
 
 (defun bt-behaviour-open (bt-node)
   (let ((token (bt-node-behaviour-type bt-node)))

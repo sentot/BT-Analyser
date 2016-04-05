@@ -607,7 +607,7 @@
     (when event
       (cond ((null formula)
              (format t "Reachable states:~%"))
-            (t (format t "Reachable states stisfying ~%~S:~%" formula)))
+            (t (format t "Reachable states satisfying ~%~S:~%" formula)))
       (let* ((bt-block-array (event-model-bt-block-array
                               (car (last *history*))))
              (pc-infos (event-model-pc-infos (car (last *history*))))
@@ -1255,6 +1255,34 @@
                    found)
             collect i))))
 
+
+(defun print-block-label (i)
+  (unless (null *history*)
+    (let ((bt-block-array (event-model-bt-block-array (car (last *history*)))))
+      (format t "[~A"
+	      (bt-node-requirement-label
+	       (car (bt-block-bt-nodes (aref bt-block-array i)))))
+      (loop for node in (cdr (bt-block-bt-nodes (aref bt-block-array i)))
+	    do (format t ",~A" (bt-node-requirement-label node)))
+      (format t "]"))))
+
+(defun print-test-paths (paths)
+  (format t "~%(~S paths)~%" (length paths))
+  (loop for path in paths
+        do
+        (cond ((check-test-path path)
+               (format t "~%Valid path:~%")
+	       (loop for i in path
+		     do (print-block-label i))
+	       (format t "~%")
+               (print-test-path-summary path))
+              (t
+               (format t "~%Invalid path:~%")
+	       (loop for i in path
+		     do (print-block-label i))
+	       (format t "~%")
+               (print-test-path-summary path)))))
+
 
 
 
@@ -1275,7 +1303,8 @@
   (unless (null *history*)
     (let ((pc-infos (event-model-pc-infos (car (last *history*))))
           (state-vars (event-model-state-vars (car (last *history*)))))
-      (unencode-formula pc-infos state-vars (print-normal-form bdd)))))
+      ;; unencode-formula currently only works with dnf
+      (unencode-formula pc-infos state-vars (bdd-to-dnf bdd)))))
 
 ;;; Various print routines to examine states.
 ;;; The print ... -with-matching routines are handy for debugging.
@@ -1539,7 +1568,83 @@
                       (and reachability-event
                            (event-reachable-states-states
                              reachability-event)))))
-        result))))
+	(remove-duplicate-reversion-paths result)
+	;result
+	))))
+
+(defun find-test-paths-with-cycles (intermediates blocks)
+  (unless (null *history*)
+    (let ((block-array (event-model-block-array (car (last *history*))))
+          (reachability-event (find-reachable-states))
+	  (reversions
+	   (loop for i in (indices-of-reversion-blocks)
+		 unless (member-equal i blocks)
+		 collect i)))
+      (remove-duplicate-reversion-paths
+        (loop for rev in reversions
+              append (find-cyclic-paths
+                       rev blocks intermediates block-array
+                       (and reachability-event
+                            (event-reachable-states-states
+                              reachability-event))))))))
+
+(defun find-test-prefixes (source intermediates blocks)
+  (unless (null *history*)
+    (let ((block-array (event-model-block-array (car (last *history*))))
+          (reachability-event (find-reachable-states)))
+      (let ((result (find-intermediate-paths
+                      source blocks intermediates block-array
+                      (and reachability-event
+                           (event-reachable-states-states
+                             reachability-event)))))
+	;(remove-duplicate-reversion-paths result)
+	result
+	))))
+
+(defun find-test-paths-with-noi-sequence (source targets intermediates blocks)
+  (let ((prefixes (find-test-prefixes source intermediates blocks))
+	(block-array (event-model-block-array (car (last *history*))))
+        (reachability-event (find-reachable-states)))
+    (unless (null prefixes)
+      (let* ((reachable
+	      (and reachability-event
+	           (event-reachable-states-states reachability-event)))
+             (allowed-blocks
+               (loop for i from 0 to (- (length block-array) 1)
+                     unless (or (member-equal i blocks)
+                                (member-equal i intermediates))
+                     collect i))
+	     (suffix-start (car (last (car prefixes))))
+	     (suffix-start-post
+	      (push-bdd-entry
+	        (path-postcondition (car prefixes) block-array reachable))))
+        (loop for target in targets
+              append
+              (let* ((visited
+                       (list (push-bdd-entry
+			      (block-transition-pre
+			       target block-array reachable))))
+		     (suffixes
+		      (find-paths-new-aux
+		       suffix-start suffix-start-post allowed-blocks nil
+		       visited block-array reachable)))
+		(loop for suffix in suffixes
+		      collect (append (car prefixes)
+			              (cdr suffix)
+				      (list target)))))))))
+
+(defun remove-duplicate-reversion-paths (paths)
+  (loop for path in paths
+	unless
+	(and (consp path)
+	     (is-reversion-block (car path))
+	     (let ((found nil))
+	       (loop for p in paths
+		     do (when (and (not (is-reversion-block (car p)))
+				   (equal (cdr path) (cdr p)))
+			  (setq found t)))
+	       found))
+	collect path))
 
 (defun check-test-path (path)
   (unless (null *history*)
@@ -1641,6 +1746,24 @@
                    found)
             collect i))))
 
+(defun indices-of-event-blocks (component &optional behaviour)
+  (unless (null *history*)
+    (let ((bt-block-array (event-model-bt-block-array (car (last *history*)))))
+      (loop for i from 0 to (- (length bt-block-array) 1)
+            when (let ((nodes (bt-block-bt-nodes (aref bt-block-array i)))
+                       (special (bt-block-special (aref bt-block-array i)))
+                       (found nil))
+                   (unless special
+                     (loop for n in nodes
+                           when
+                           (and (eq (bt-node-type n) 'event)
+                                (equal (bt-node-component n) component)
+                                (or (null behaviour)
+                                    (equal (bt-node-behaviour n) behaviour)))
+                           do (setq found t)))
+                   found)
+            collect i))))
+
 (defun sv-name-atring (sv)
   (substring sv 3))
 
@@ -1661,21 +1784,14 @@
              (print-bt-block-summary (aref bt-block-array index)))
             ((bt-block-p index) (print-bt-block-summary index))))))
 
-(defun indices-of-event-blocks (component &optional behaviour)
+(defun print-block-summary-first-node (index)
   (unless (null *history*)
     (let ((bt-block-array (event-model-bt-block-array (car (last *history*)))))
-      (loop for i from 0 to (- (length bt-block-array) 1)
-            when (let ((nodes (bt-block-bt-nodes (aref bt-block-array i)))
-                       (found nil))
-                   (loop for n in nodes
-                         when
-                         (and (eq (bt-node-type n) 'event)
-                              (equal (bt-node-component n) component)
-                              (or (null behaviour)
-                                  (equal (bt-node-behaviour n) behaviour)))
-                         do (setq found t))
-                   found)
-            collect i))))
+      (cond ((and (>= index 0) (<= index (length bt-block-array)))
+	     (print-bt-node-summary
+	      (car (bt-block-bt-nodes (aref bt-block-array index)))))
+            ((bt-block-p index)
+	     (print-bt-node-summary (car (bt-block-bt-nodes index))))))))
 
 (defun number-of-bt-nodes ()
   (unless (null *history*)
@@ -1706,3 +1822,53 @@
             do (setq result t))
       result)))
 
+
+(defun is-subsequence (s1 s2)
+  (and (listp s1)
+       (listp s2)
+       (<= (length s1) (length s2))
+       (or (null s1)
+	   (and (equal (car s1) (car s2))
+		(is-subsequence-aux (cdr s1) (cdr s2)))
+	   (is-subsequence-aux s1 (cdr s2)))))
+
+(defun is-subsequence-aux (s1 s2)
+  (and (<= (length s1) (length s2))
+       (or (null s1)
+	   (null s1)
+	   (and (equal (car s1) (car s2))
+		(is-subsequence-aux (cdr s1) (cdr s2)))
+	   (is-subsequence-aux s1 (cdr s2)))))
+
+(defun filter-using-subsequence (sequences subsequence noi)
+  (let ((others (loop for el in noi
+		      unless (member-equal el subsequence)
+		      collect el)))
+    (loop for sequence in sequences
+	  when (and (null (intersection-equal sequence others))
+		    (is-subsequence subsequence sequence))
+	  collect sequence)))
+
+(defun shortest-sequence (sequences)
+  (let ((result (car sequences)))
+    (loop for seq in sequences
+	  when (< (length seq) (length result))
+	  do (setq result seq))
+    result))
+
+(defun shortest-with-subsequence (subsequence sequences noi)
+  (shortest-sequence (filter-using-subsequence sequences subsequence noi)))
+
+(defun get-subsequence (noi sequence)
+  (loop for element in sequence
+	when (member-equal element noi)
+	collect element))
+
+(defun get-subsequences (noi sequences)
+  (remove-duplicates
+    (loop for sequence in sequences
+	  collect (get-subsequence noi sequence))))
+
+(defun shortest-paths-for-each-combination (noi paths)
+  (loop for combination in (get-subsequences noi paths)
+	collect (shortest-with-subsequence combination paths noi)))

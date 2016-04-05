@@ -204,7 +204,10 @@
                  (xml-behaviour-type bt-node)
                  "</behaviour-type>"
                  "<behaviour>"
-                 (format nil "~A" (bt-node-behaviour bt-node))
+		 (string-replace
+		  (format nil "~A" (bt-node-behaviour bt-node))
+		  "&"
+		  "&#38;")
                  "</behaviour>"
                  "<flag>"
                  (if (null (bt-node-flag bt-node))

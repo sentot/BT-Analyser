@@ -590,8 +590,8 @@
                         (bt-node-atomic (bt-node-parent bt-node)))))
     (loop for node = (bt-node-parent bt-node) then (bt-node-parent node)
           while (not (null node))
-          ;; target node must not be atomically composed with its
-          ;; children and must not have a kill flag
+          ;; target node can now be atomically composed with its
+          ;; children but must never have a kill flag
           when (and (equal (bt-node-component node) component)
                     (equal (bt-node-behaviour node) behaviour)
                     (equal (bt-node-label node) label)
@@ -1606,7 +1606,7 @@
   (when (bt-block-special block)
     (format t "SELECTION ELSE~%---~%"))
   (loop for n in (bt-block-bt-nodes block)
-        do (print-bt-node-summary n))
+        do (progn (print-bt-node-summary n) (format t "~%")))
   (format t "-----~%"))
 
 
